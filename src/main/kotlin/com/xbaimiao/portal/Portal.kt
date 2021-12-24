@@ -1,23 +1,23 @@
 package com.xbaimiao.portal
 
 import com.google.gson.Gson
-import com.xbaimiao.portal.channel.client.Client
+import com.xbaimiao.portal.channel.Client
+import com.xbaimiao.portal.packet.CommandPacket
+import com.xbaimiao.portal.packet.Serializer
+import com.xbaimiao.portal.util.aptSender
+import com.xbaimiao.portal.packet.init
+import com.xbaimiao.portal.packet.packets
 import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.World
-import org.bukkit.entity.EntityType
-import org.bukkit.entity.Item
-import org.bukkit.event.entity.EntityPortalEvent
 import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerPortalEvent
 import taboolib.common.platform.Platform
 import taboolib.common.platform.PlatformSide
 import taboolib.common.platform.Plugin
 import taboolib.common.platform.event.SubscribeEvent
 import taboolib.common.platform.function.submit
+import taboolib.common.reflect.Reflex.Companion.unsafeInstance
 import taboolib.module.configuration.Config
 import taboolib.module.configuration.SecuredFile
-import taboolib.platform.BukkitPlugin
 
 /**
  * @Author xbaimiao
@@ -30,76 +30,47 @@ object Portal : Plugin() {
     lateinit var config: SecuredFile
 
     val waitTeleports = HashMap<String, Location>()
+    val waitCommands = ArrayList<CommandPacket>()
+    var isRun = true
 
     override fun onEnable() {
-        Bukkit.getServer().messenger.registerOutgoingPluginChannel(BukkitPlugin.getInstance(), "BungeeCord")
-
-        Client.sendMessage("SERVER:${config.getString("channel.server")}".toByteArray())
-        Client.subscribeEvent { string, socket ->
-            if (string.startsWith("TELEPORT:")) {
-                val gson = Gson()
-                val data = gson.fromJson(string.substring(9), TeleportData::class.java)
-                if (data.type == TeleportData.Type.PLAYER) {
-                    //放入待tp列表
-                    waitTeleports[data.entityType] = data.aptLocation()
-                    submit(delay = 200) { waitTeleports.remove(data.entityType) }
-                } else {
-                    submit {
-                        data.aptLocation().world!!.spawnEntity(data.aptLocation(), EntityType.valueOf(data.entityType))
-                    }
-                }
+        init()
+        // 子服处理bungee数据
+        Client.subscribeEvent { prefix, string, socket ->
+            println(prefix + string)
+            val unsafeInstance = packets[prefix]?.unsafeInstance()
+            if (unsafeInstance is Serializer) {
+                val data = unsafeInstance.parse(string)
+                data.bukkit(string, socket)
+                return@subscribeEvent
             }
+            val gson = Gson()
+            val data = gson.fromJson(string, packets[prefix])
+            data.bukkit(string, socket)
         }
     }
 
+    override fun onDisable() {
+        isRun = false
+        Client.close()
+    }
+
     @SubscribeEvent
-    fun tp(event: PlayerJoinEvent) {
+    fun join(event: PlayerJoinEvent) {
         submit(delay = 5) {
             val player = event.player
             if (player.name in waitTeleports.keys) {
                 player.teleport(waitTeleports[player.name]!!)
                 waitTeleports.remove(player.name)
             }
+            for (waitCommand in waitCommands) {
+                if (waitCommand.player == player.name) {
+                    Bukkit.dispatchCommand(waitCommand.type.aptSender(player), waitCommand.cmd)
+                    waitCommands.remove(waitCommand)
+                    break
+                }
+            }
         }
-    }
-
-    @SubscribeEvent
-    fun portal(event: EntityPortalEvent) {
-        val entity = event.entity
-        if (event.from.world!!.environment == World.Environment.THE_END) {
-            event.isCancelled = true
-            return
-        }
-        if (entity is Item) {
-            event.isCancelled = true
-            return
-        }
-        val type = TeleportData.Type.ENTITY
-        val location = event.to ?: return
-        val server =
-            if (location.world!!.environment == World.Environment.NETHER) config.getString("nether.form")
-            else config.getString("nether.to")
-
-        val data = TeleportData(location.aptString(), type, server, entity.type.toString())
-        val gson = Gson()
-        Client.sendMessage("TELEPORT:${gson.toJson(data)}".toByteArray())
-        event.isCancelled = true
-        entity.remove()
-    }
-
-    @SubscribeEvent
-    fun pPortal(event: PlayerPortalEvent) {
-        val player = event.player
-        val type = TeleportData.Type.PLAYER
-        val location = event.to ?: return
-        val server =
-            if (location.world!!.environment == World.Environment.NETHER) config.getString("nether.form")
-            else config.getString("nether.to")
-
-        val data = TeleportData(location.aptString(), type, server, player.name)
-        val gson = Gson()
-        Client.sendMessage("TELEPORT:${gson.toJson(data)}".toByteArray())
-        event.isCancelled = true
     }
 
 }

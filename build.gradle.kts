@@ -20,6 +20,8 @@ taboolib {
     install("module-configuration")
     install("module-chat")
 	install("module-lang")
+	install("module-nms")
+	install("module-nms-util")
     version = "6.0.3-15"
 }
 
@@ -32,6 +34,7 @@ dependencies {
     compileOnly("ink.ptms.core:v11701:11701:mapped")
     compileOnly("ink.ptms.core:v11701:11701:universal")
     compileOnly("paper:paper:waterfall")
+    taboo("com.xbaimiao:util:1.1.1")
     compileOnly(kotlin("stdlib"))
     compileOnly(fileTree("libs"))
 }
