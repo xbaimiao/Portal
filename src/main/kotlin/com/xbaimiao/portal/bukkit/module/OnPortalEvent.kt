@@ -1,8 +1,8 @@
-package com.xbaimiao.portal.bukkit
+package com.xbaimiao.portal.bukkit.module
 
-import com.xbaimiao.portal.Portal
-import com.xbaimiao.portal.channel.Client
-import com.xbaimiao.portal.packet.TeleportPacket
+import com.xbaimiao.portal.bukkit.Portal
+import com.xbaimiao.portal.bukkit.channel.Client
+import com.xbaimiao.portal.packet.impl.TeleportPacket
 import com.xbaimiao.portal.util.aptString
 import org.bukkit.World
 import org.bukkit.entity.Item

@@ -1,7 +1,7 @@
-package com.xbaimiao.portal.bukkit
+package com.xbaimiao.portal.bukkit.module
 
-import com.xbaimiao.portal.channel.Client
-import com.xbaimiao.portal.packet.CommandPacket
+import com.xbaimiao.portal.bukkit.channel.Client
+import com.xbaimiao.portal.packet.impl.CommandPacket
 import taboolib.common.LifeCycle
 import taboolib.common.platform.Awake
 import taboolib.common.platform.ProxyCommandSender
@@ -27,7 +27,7 @@ object Command {
                             execute<ProxyCommandSender> { sender, context, argument ->
                                 val server = context.argument(-2)
                                 val player = context.argument(-1)
-                                val commandData = CommandPacket(argument, player, server, CommandPacket.Type.SENDER)
+                                val commandData = CommandPacket(argument, player, server, CommandPacket.SenderType.SENDER,CommandPacket.Delay.DELAY)
                                 Client.sendPacket(commandData)
                             }
                         }
@@ -40,7 +40,7 @@ object Command {
                         execute<ProxyCommandSender> { sender, context, argument ->
                             val server = context.argument(-2)
                             val player = context.argument(-1)
-                            val commandData = CommandPacket(argument, player, server, CommandPacket.Type.PLAYER)
+                            val commandData = CommandPacket(argument, player, server, CommandPacket.SenderType.PLAYER,CommandPacket.Delay.DELAY)
                             Client.sendPacket(commandData)
                         }
                     }

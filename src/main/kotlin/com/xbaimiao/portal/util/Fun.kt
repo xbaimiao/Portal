@@ -1,6 +1,6 @@
 package com.xbaimiao.portal.util
 
-import com.xbaimiao.portal.packet.CommandPacket
+import com.xbaimiao.portal.packet.impl.CommandPacket
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.command.CommandSender
@@ -19,10 +19,10 @@ fun Location.aptString(): String {
     return "${world!!.name},$blockX,$blockY,$blockZ"
 }
 
-fun CommandPacket.Type.aptSender(player: Player): CommandSender {
+fun CommandPacket.SenderType.aptSender(player: Player): CommandSender {
     return when (this) {
-        CommandPacket.Type.SENDER -> Bukkit.getConsoleSender()
-        CommandPacket.Type.PLAYER -> player
+        CommandPacket.SenderType.SENDER -> Bukkit.getConsoleSender()
+        CommandPacket.SenderType.PLAYER -> player
     }
 }
 

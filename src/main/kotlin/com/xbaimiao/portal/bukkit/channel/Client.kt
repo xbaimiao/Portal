@@ -1,10 +1,11 @@
-package com.xbaimiao.portal.channel
+package com.xbaimiao.portal.bukkit.channel
 
 import com.google.gson.Gson
-import com.xbaimiao.portal.Portal
+import com.xbaimiao.portal.bukkit.Portal
 import com.xbaimiao.portal.packet.Packet
 import com.xbaimiao.portal.packet.Serializer
-import com.xbaimiao.portal.packet.ServerPacket
+import com.xbaimiao.portal.packet.impl.Heartbeat
+import com.xbaimiao.portal.packet.impl.ServerPacket
 import taboolib.common.platform.function.info
 import taboolib.common.platform.function.submit
 import java.net.Socket
@@ -25,10 +26,13 @@ object Client {
 
     init {
         sendPacket(ServerPacket(Portal.config.getString("channel.server")))
+        /**
+         * 处理bungee发过来的数据
+         */
         submit(async = true) {
             while (Portal.isRun) {
                 try {
-                    val bytes = ByteArray(4096)
+                    val bytes = ByteArray(40960)
                     val len = input.read(bytes)
                     if (len == -1) {
                         Thread.sleep(25)
@@ -44,22 +48,27 @@ object Client {
                     }
                 } catch (e: Exception) {
                     Thread.sleep(500)
-                    try {
-                        info("尝试重新连接")
-                        reload()
-                        info("重连成功")
-                    } catch (e: Exception) {
-                        info("重连失败")
-                    }
                     continue
                 }
             }
         }
+        /**
+         * 发送心跳包
+         */
+        submit(async = true, period = 200) {
+            sendPacket(Heartbeat())
+        }
     }
 
     private fun reload() {
-        socket = Socket(Portal.config.getString("channel.ip"), Portal.config.getInt("channel.port"))
-        sendPacket(ServerPacket(Portal.config.getString("channel.server")))
+        try {
+            info("尝试重新连接")
+            socket = Socket(Portal.config.getString("channel.ip"), Portal.config.getInt("channel.port"))
+            sendPacket(ServerPacket(Portal.config.getString("channel.server")))
+            info("重连成功")
+        } catch (e: Exception) {
+            info("重连失败")
+        }
     }
 
     fun subscribeEvent(func: (prefix: String, string: String, socket: Socket) -> Unit) {
@@ -90,7 +99,7 @@ object Client {
             socket.shutdownInput()
             socket.shutdownOutput()
             socket.close()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
 
         }
     }

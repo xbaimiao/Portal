@@ -1,8 +1,8 @@
-package com.xbaimiao.portal.packet
+package com.xbaimiao.portal.packet.impl
 
+import com.xbaimiao.portal.packet.Packet
 import com.xbaimiao.portal.packet.handler.bukkit.TeleportBukkit
 import com.xbaimiao.portal.packet.handler.bungee.TeleportBungee
-import com.xbaimiao.portal.util.aptLocation
 import java.net.Socket
 
 /**
@@ -24,12 +24,16 @@ class TeleportPacket(
     override val prefix: String
         get() = "TELEPORT"
 
-    override fun bukkit(string: String, socket: Socket) {
+    override fun bukkit(data: String, socket: Socket) {
         TeleportBukkit.bukkit(this)
     }
 
-    override fun bungee(string: String, socket: Socket) {
+    override fun bungee(data: String, socket: Socket) {
         TeleportBungee.bungee(this)
+    }
+
+    override fun toString(): String {
+        return "地狱门传送->server:${server},location:${location}"
     }
 
 }

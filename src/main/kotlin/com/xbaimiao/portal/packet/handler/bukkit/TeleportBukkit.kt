@@ -1,7 +1,7 @@
 package com.xbaimiao.portal.packet.handler.bukkit
 
-import com.xbaimiao.portal.Portal
-import com.xbaimiao.portal.packet.TeleportPacket
+import com.xbaimiao.portal.bukkit.Portal
+import com.xbaimiao.portal.packet.impl.TeleportPacket
 import com.xbaimiao.portal.util.aptLocation
 import org.bukkit.entity.EntityType
 import taboolib.common.platform.function.submit
@@ -19,7 +19,10 @@ object TeleportBukkit {
             submit(delay = 200) { Portal.waitTeleports.remove(data.entityType) }
         } else {
             submit {
-                data.location.aptLocation().world!!.spawnEntity(data.location.aptLocation(), EntityType.valueOf(data.entityType))
+                data.location.aptLocation().world!!.spawnEntity(
+                    data.location.aptLocation(),
+                    EntityType.valueOf(data.entityType)
+                )
             }
         }
     }

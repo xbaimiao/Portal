@@ -1,0 +1,4 @@
+tpahelp1: "&e用法: &a/tpa &f[玩家名] &e* 给其他玩家发送传送请求"
+tpahelp2: "&e用法: &a/tpaccept &f[玩家名] &e* 同意该玩家的传送请求"
+tpahelp3: "&e用法: &a/tpdeny &f[玩家名] &e* 拒绝该玩家的传送请求"
+tpasend: "&e tpa请求已发送给 &6{0}"

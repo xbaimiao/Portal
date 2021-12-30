@@ -37,6 +37,7 @@ dependencies {
     taboo("com.xbaimiao:util:1.1.1")
     compileOnly(kotlin("stdlib"))
     compileOnly(fileTree("libs"))
+    implementation(kotlin("reflect"))
 }
 
 tasks.withType<JavaCompile> {

@@ -1,9 +1,8 @@
 package com.xbaimiao.portal.packet.handler.bungee
 
-import com.xbaimiao.portal.channel.ChannelServer
-import com.xbaimiao.portal.packet.TeleportPacket
+import com.xbaimiao.portal.bungee.channel.Server
+import com.xbaimiao.portal.packet.impl.TeleportPacket
 import net.md_5.bungee.api.ProxyServer
-import taboolib.module.chat.TellrawJson
 
 /**
  * @Author xbaimiao
@@ -16,9 +15,9 @@ object TeleportBungee {
             val player = ProxyServer.getInstance().getPlayer(data.entityType)
             player.connect(ProxyServer.getInstance().getServerInfo(data.server))
 
-            ChannelServer.sendMessage(data.server, data)
+            Server.sendMessage(data.server, data)
         } else {
-            ChannelServer.sendMessage(data.server, data)
+            Server.sendMessage(data.server, data)
         }
     }
 

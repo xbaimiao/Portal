@@ -1,4 +1,4 @@
-package com.xbaimiao.portal.channel
+package com.xbaimiao.portal.bungee.channel
 
 import taboolib.common.platform.function.submit
 import java.net.Socket
@@ -15,7 +15,7 @@ class ChannelHandler(val socket: Socket) : Thread() {
         submit(async = true) {
             while (true) {
                 try {
-                    val bytes = ByteArray(4096)
+                    val bytes = ByteArray(40960)
                     val len = input.read(bytes)
                     if (len == -1) {
                         sleep(25)
@@ -27,7 +27,7 @@ class ChannelHandler(val socket: Socket) : Thread() {
                     }
                     submit(async = true) {
                         val index = string.indexOf(":")
-                        ChannelServer.list.forEach {
+                        Server.list.forEach {
                             it.invoke(
                                 string.substring(0, index),
                                 string.substring(index + 1),
@@ -36,7 +36,11 @@ class ChannelHandler(val socket: Socket) : Thread() {
                         }
                     }
                 } catch (e: Exception) {
-                    sleep(100)
+                    try {
+                        sleep(100)
+                    } catch (_: Exception) {
+
+                    }
                     continue
                 }
             }
